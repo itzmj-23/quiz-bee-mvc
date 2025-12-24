@@ -21,6 +21,7 @@ const questionTable = document.getElementById("questionTable");
 
 const teamName = document.getElementById("teamName");
 const createTeam = document.getElementById("createTeam");
+const deleteAllTeams = document.getElementById("deleteAllTeams");
 const teamList = document.getElementById("teamList");
 
 const currentQuestion = document.getElementById("currentQuestion");
@@ -408,6 +409,15 @@ createTeam.addEventListener("click", async () => {
   await loadTeams();
 });
 
+deleteAllTeams.addEventListener("click", async () => {
+  if (confirm("Are you sure you want to delete ALL teams and their submissions? This cannot be undone!")) {
+    await api("/api/teams/delete_all", { method: "POST" });
+    await loadTeams();
+    await loadRankings();
+    await refreshSubmissions();
+  }
+});
+
 setCurrent.addEventListener("click", async () => {
   await api("/api/game/set_current", {
     method: "POST",
@@ -520,6 +530,7 @@ async function loadTeams() {
           </div>
           <img class="qr" src="/api/qr/${team.token}?admin_password=${encodeURIComponent(adminPassword)}" alt="QR code" />
           <button class="ghost" data-release="${team.id}">Release Device</button>
+          <button class="danger" data-delete-team="${team.id}">Delete</button>
         </div>
       `;
       teamList.appendChild(wrapper);
@@ -538,6 +549,17 @@ async function loadTeams() {
     btn.addEventListener("click", async () => {
       const id = btn.getAttribute("data-release");
       await api(`/api/teams/${id}/release`, { method: "POST" });
+    });
+  });
+
+  teamList.querySelectorAll("button[data-delete-team]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const id = btn.getAttribute("data-delete-team");
+      if (confirm("Are you sure you want to delete this team and all their submissions?")) {
+        await api(`/api/teams/${id}`, { method: "DELETE" });
+        await loadTeams();
+        await loadRankings();
+      }
     });
   });
 }

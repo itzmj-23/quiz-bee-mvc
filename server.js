@@ -407,6 +407,25 @@ app.post("/api/teams/:id/adjust", requireAdmin, (req, res) => {
   emitRankings();
 });
 
+app.delete("/api/teams/:id", requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  // Delete team's submissions first
+  db.prepare("DELETE FROM submissions WHERE team_id = ?").run(id);
+  // Delete the team
+  db.prepare("DELETE FROM teams WHERE id = ?").run(id);
+  res.json({ ok: true });
+  emitRankings();
+});
+
+app.post("/api/teams/delete_all", requireAdmin, (req, res) => {
+  // Delete all submissions
+  db.prepare("DELETE FROM submissions").run();
+  // Delete all teams
+  db.prepare("DELETE FROM teams").run();
+  res.json({ ok: true });
+  emitRankings();
+});
+
 app.post("/api/game/set_current", requireAdmin, (req, res) => {
   const questionId = Number(req.body?.question_id || 0);
   const state = getGameState();
