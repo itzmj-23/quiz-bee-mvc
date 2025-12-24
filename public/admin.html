@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz Bee Admin</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+    <header>
+      <h1>Quiz Bee — Game Master</h1>
+      <div class="flex-row">
+        <label for="adminPassword">Admin Password</label>
+        <input id="adminPassword" type="password" placeholder="Set admin password" />
+        <button id="savePassword">Save</button>
+        <span id="authStatus" class="status-pill closed">Not verified</span>
+      </div>
+    </header>
+    <div class="wrap">
+      <div class="card">
+        <div class="tabs" id="adminTabs">
+          <button class="tab-btn active" data-tab="questions">Questions</button>
+          <button class="tab-btn" data-tab="teams">Teams</button>
+          <button class="tab-btn" data-tab="rankings">Rankings</button>
+          <button class="tab-btn" data-tab="controls">Game Controls</button>
+          <button class="tab-btn" data-tab="submissions">Submissions</button>
+        </div>
+      </div>
+
+      <section class="tab-panel active" id="tab-questions">
+        <div class="grid-2">
+          <div class="card">
+            <h2 id="questionFormTitle">Create Question</h2>
+            <label for="qType">Type</label>
+            <select id="qType">
+              <option value="text">Text</option>
+              <option value="multiple_choice">Multiple Choice</option>
+            </select>
+            <label for="qPrompt">Prompt</label>
+            <textarea id="qPrompt" placeholder="Question prompt"></textarea>
+            <div id="choiceBlock">
+              <label>Choices (A-D)</label>
+              <input id="choiceA" placeholder="Choice A" />
+              <input id="choiceB" placeholder="Choice B" />
+              <input id="choiceC" placeholder="Choice C" />
+              <input id="choiceD" placeholder="Choice D" />
+            </div>
+            <label for="qAnswer">Correct Answer</label>
+            <input id="qAnswer" placeholder="Correct answer" />
+            <label for="qPoints">Points</label>
+            <input id="qPoints" type="number" min="0" value="10" />
+            <label for="qTime">Time Limit (seconds)</label>
+            <input id="qTime" type="number" min="0" placeholder="Optional" />
+            <div class="flex-row">
+              <button id="createQuestion">Create Question</button>
+              <button id="cancelEdit" class="ghost" style="display: none;">Cancel Edit</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Questions</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Prompt</th>
+                  <th>Type</th>
+                  <th>Points</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="questionTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-teams">
+        <div class="grid-2">
+          <div class="card">
+            <h2>Create Team</h2>
+            <label for="teamName">Team Name</label>
+            <input id="teamName" placeholder="Team name" />
+            <button id="createTeam">Create Team</button>
+          </div>
+          <div class="card">
+            <h2>Teams</h2>
+            <div id="teamList" class="muted">No teams yet.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-rankings">
+        <div class="grid-2">
+          <div class="card">
+            <h2>Rankings</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Team</th>
+                  <th>Points</th>
+                  <th>Total Time (ms)</th>
+                </tr>
+              </thead>
+              <tbody id="rankingsBody"></tbody>
+            </table>
+          </div>
+          <div class="card">
+            <h2>Fastest Submitters (Current)</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Team</th>
+                  <th>Time (ms)</th>
+                  <th>Submitted At</th>
+                </tr>
+              </thead>
+              <tbody id="fastestBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-controls">
+        <div class="grid-2">
+          <div class="card">
+            <h2>Game Controls</h2>
+            <label for="currentQuestion">Current Question</label>
+            <select id="currentQuestion"></select>
+            <div class="flex-row">
+              <button id="setCurrent">Set Current</button>
+              <button id="openQuestion">Open Question</button>
+              <button id="closeQuestion" class="danger">Close Question</button>
+              <button id="revealAnswer" class="secondary">Reveal Answer</button>
+            </div>
+            <div class="banner" id="stateBanner">Waiting for state...</div>
+          </div>
+
+          <div class="card">
+            <h2>Manual Overrides</h2>
+            <label for="adjustTeam">Adjust Team Points</label>
+            <select id="adjustTeam"></select>
+            <input id="adjustDelta" type="number" placeholder="+/- points" />
+            <button id="applyAdjust">Apply</button>
+            <label for="resetQuestion">Reset Question Submissions</label>
+            <select id="resetQuestion"></select>
+            <button id="resetSubmissions" class="ghost">Reset Submissions</button>
+          </div>
+
+          <div class="card">
+            <h2>Audio</h2>
+            <p class="muted">Add MP3 files in <code>public/audio</code>. See README for filenames.</p>
+            <div class="flex-row">
+              <button id="enableAudio" class="ghost">Enable Audio</button>
+              <button id="toggleMusic">Play Music</button>
+              <button id="testSfx" class="secondary">Test SFX</button>
+            </div>
+            <p id="audioStatus" class="muted">Audio: idle</p>
+            <label for="musicVolume">Music Volume</label>
+            <input id="musicVolume" type="range" min="0" max="1" step="0.05" value="0.4" />
+            <label for="sfxVolume">SFX Volume</label>
+            <input id="sfxVolume" type="range" min="0" max="1" step="0.05" value="1" />
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-submissions">
+        <div class="card">
+          <h2>Submissions (Current Question)</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Team</th>
+                <th>Answer</th>
+                <th>Correct</th>
+                <th>Time (ms)</th>
+                <th>Points</th>
+                <th>Override</th>
+              </tr>
+            </thead>
+            <tbody id="submissionBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <script src="/admin.js"></script>
+    <audio id="bgMusic" src="/audio/mario.mp3" preload="auto" loop></audio>
+    <audio id="sfxSubmit" src="/audio/submitted.mp3" preload="auto"></audio>
+    <audio id="sfxOpen" src="/audio/open.mp3" preload="auto"></audio>
+    <audio id="sfxClose" src="/audio/close.mp3" preload="auto"></audio>
+    <audio id="sfxReveal" src="/audio/reveal.mp3" preload="auto"></audio>
+    <audio id="sfxSet" src="/audio/setcurrent.mp3" preload="auto"></audio>
+  </body>
+</html>

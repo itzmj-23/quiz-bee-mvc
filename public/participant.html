@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz Bee Participant</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+    <header>
+      <h1>Quiz Bee — Team</h1>
+      <div class="status-pill" id="openStatus">Waiting...</div>
+    </header>
+    <div class="wrap participant">
+      <div id="banner" class="banner">Connecting...</div>
+      <div class="card">
+        <h2 id="teamName">Team</h2>
+        <div id="questionArea">
+          <p class="muted">No question yet.</p>
+        </div>
+        <div id="answerArea"></div>
+        <button id="submitAnswer">Submit</button>
+        <p id="submitStatus" class="muted"></p>
+      </div>
+    </div>
+
+    <script src="/participant.js"></script>
+  </body>
+</html>
