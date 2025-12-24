@@ -318,9 +318,19 @@ async function verifyAudioFiles() {
 
 verifyAudioFiles();
 
+// Initialize with tabs hidden
+setAuth(false);
+
 function setAuth(ok) {
   authStatus.textContent = ok ? "Verified" : "Not verified";
   authStatus.classList.toggle("closed", !ok);
+  
+  // Show/hide the entire content area based on authentication
+  const wrapContainer = document.querySelector(".wrap");
+  
+  if (wrapContainer) {
+    wrapContainer.style.display = ok ? "block" : "none";
+  }
 }
 
 savePasswordBtn.addEventListener("click", () => {
