@@ -12,14 +12,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-logs
+logs/
 *.log
 
 # Build output
 dist/
 build/
-.vercel
-.output
 
 # Coverage
 coverage/
@@ -48,8 +46,9 @@ pids
 *.db-shm
 *.db-wal
 
-# Vercel
-.vercel
+# PM2
+.pm2
+.pm2-*
 
 # Optional: lock files (comment out if you want them tracked)
 # package-lock.json

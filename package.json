@@ -10,7 +10,13 @@
   "scripts": {
     "dev": "node server.js",
     "start": "node server.js",
-    "vercel-build": "echo 'Build complete'"
+    "pm2:start": "pm2 start ecosystem.config.js --env production",
+    "pm2:stop": "pm2 stop quiz-bee-mvp",
+    "pm2:restart": "pm2 restart quiz-bee-mvp",
+    "pm2:reload": "pm2 reload quiz-bee-mvp",
+    "pm2:delete": "pm2 delete quiz-bee-mvp",
+    "pm2:logs": "pm2 logs quiz-bee-mvp",
+    "pm2:monitor": "pm2 monit"
   },
   "dependencies": {
     "better-sqlite3": "^11.6.0",
@@ -18,5 +24,8 @@
     "express": "^4.19.2",
     "qrcode": "^1.5.4",
     "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "pm2": "^5.3.0"
   }
 }
