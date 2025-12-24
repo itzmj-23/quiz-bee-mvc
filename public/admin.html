@@ -40,18 +40,23 @@
             <label for="qPrompt">Prompt</label>
             <textarea id="qPrompt" placeholder="Question prompt"></textarea>
             <div id="choiceBlock">
-              <label>Choices (A-D)</label>
-              <input id="choiceA" placeholder="Choice A" />
-              <input id="choiceB" placeholder="Choice B" />
-              <input id="choiceC" placeholder="Choice C" />
-              <input id="choiceD" placeholder="Choice D" />
+              <label>Choices (A-D) - Enter text or image URL</label>
+              <input id="choiceA" placeholder="Choice A (text or image URL)" />
+              <input id="choiceB" placeholder="Choice B (text or image URL)" />
+              <input id="choiceC" placeholder="Choice C (text or image URL)" />
+              <input id="choiceD" placeholder="Choice D (text or image URL)" />
+              <p class="muted">For images, paste a URL (e.g., https://example.com/image.jpg)</p>
             </div>
             <label for="qAnswer">Correct Answer</label>
             <input id="qAnswer" placeholder="Correct answer" />
             <label for="qPoints">Points</label>
             <input id="qPoints" type="number" min="0" value="10" />
-            <label for="qTime">Time Limit (seconds)</label>
-            <input id="qTime" type="number" min="0" placeholder="Optional" />
+            <label for="qTime">Time Limit</label>
+            <select id="qTime">
+              <option value="">None</option>
+              <option value="10">10 seconds</option>
+              <option value="20">20 seconds</option>
+            </select>
             <div class="flex-row">
               <button id="createQuestion">Create Question</button>
               <button id="cancelEdit" class="ghost" style="display: none;">Cancel Edit</button>
@@ -155,7 +160,6 @@
             <div class="flex-row">
               <button id="enableAudio" class="ghost">Enable Audio</button>
               <button id="toggleMusic">Play Music</button>
-              <button id="testSfx" class="secondary">Test SFX</button>
             </div>
             <p id="audioStatus" class="muted">Audio: idle</p>
             <label for="musicVolume">Music Volume</label>
@@ -186,12 +190,12 @@
       </section>
     </div>
 
-    <script src="/admin.js"></script>
     <audio id="bgMusic" src="/audio/mario.mp3" preload="auto" loop></audio>
     <audio id="sfxSubmit" src="/audio/submitted.mp3" preload="auto"></audio>
     <audio id="sfxOpen" src="/audio/open.mp3" preload="auto"></audio>
     <audio id="sfxClose" src="/audio/close.mp3" preload="auto"></audio>
     <audio id="sfxReveal" src="/audio/reveal.mp3" preload="auto"></audio>
     <audio id="sfxSet" src="/audio/setcurrent.mp3" preload="auto"></audio>
+    <script src="/admin.js"></script>
   </body>
 </html>

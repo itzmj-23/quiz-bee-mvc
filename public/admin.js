@@ -51,7 +51,6 @@ const sfxClose = document.getElementById("sfxClose");
 const sfxReveal = document.getElementById("sfxReveal");
 const sfxSet = document.getElementById("sfxSet");
 const audioStatus = document.getElementById("audioStatus");
-const testSfx = document.getElementById("testSfx");
 
 let adminPassword = localStorage.getItem("adminPassword") || "";
 adminPasswordInput.value = adminPassword;
@@ -182,8 +181,17 @@ async function handleToggleMusicClick() {
   try {
     if (!bgMusic) return;
     setAudioStatus("Audio: toggle click");
-    if (!audioEnabled) await enableAudioPlayback(true);
+    
+    let justStarted = false;
+    if (!audioEnabled) {
+      await enableAudioPlayback(true);
+      if (!bgMusic.paused) justStarted = true;
+    }
+    
     wantsMusic = true;
+    
+    if (justStarted) return;
+
     if (bgMusic.paused) {
       await bgMusic.play().catch((err) => {
         setAudioStatus(`Audio: music blocked (${err?.name || "error"})`);
@@ -223,25 +231,8 @@ if (toggleMusic) {
   toggleMusic.addEventListener("click", handleToggleMusicClick);
 }
 
-document.addEventListener("click", (event) => {
-  const btn = event.target.closest("#toggleMusic");
-  if (btn) {
-    handleToggleMusicClick();
-  }
-});
-
 musicVolume?.addEventListener("input", setAudioVolume);
 sfxVolume?.addEventListener("input", setAudioVolume);
-
-if (testSfx) {
-  testSfx.addEventListener("click", () => {
-    enableAudioPlayback(true).then(() => {
-      setAudioStatus("Audio: test sfx");
-      playSfx("submit");
-      playBeep();
-    });
-  });
-}
 
 document.addEventListener(
   "click",
@@ -297,6 +288,8 @@ async function verifyAudioFiles() {
     "/audio/close.mp3",
     "/audio/reveal.mp3",
     "/audio/setcurrent.mp3",
+    "/audio/10-sec-countdown.mp3",
+    "/audio/20-sec-countdown.mp3",
   ];
   try {
     const results = await Promise.all(
@@ -553,12 +546,15 @@ async function loadRankings() {
   const rankings = await api("/api/rankings");
   rankingsBody.innerHTML = "";
   rankings.forEach((team, idx) => {
+    const seconds = Math.floor(team.total_time_ms / 1000);
+    const ms = team.total_time_ms % 1000;
+    const timeDisplay = `${seconds}s ${ms}ms`;
     const row = document.createElement("tr");
     row.innerHTML = `
       <td>${idx + 1}</td>
       <td>${team.name}</td>
       <td>${team.points}</td>
-      <td>${team.total_time_ms}</td>
+      <td>${timeDisplay}</td>
     `;
     rankingsBody.appendChild(row);
   });

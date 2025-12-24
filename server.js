@@ -15,6 +15,8 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+let autoCloseTimeout = null;
+
 // io.on("connection", (socket) => {
 //   console.log("Socket connected:", socket.id);
 // });
@@ -412,6 +414,13 @@ app.post("/api/game/set_current", requireAdmin, (req, res) => {
     gradeCurrentQuestion();
     db.prepare("UPDATE game_state SET is_open = 0, opened_at = NULL").run();
   }
+  
+  // Clear auto-close timeout when changing questions
+  if (autoCloseTimeout) {
+    clearTimeout(autoCloseTimeout);
+    autoCloseTimeout = null;
+  }
+  
   db.prepare("UPDATE game_state SET current_question_id = ?, reveal_answer = 0").run(questionId || null);
   res.json({ ok: true });
   emitState();
@@ -423,7 +432,37 @@ app.post("/api/game/open", requireAdmin, (req, res) => {
   if (!state.current_question_id) {
     return res.status(400).json({ error: "no_current_question" });
   }
+  
+  // Clear any existing auto-close timeout
+  if (autoCloseTimeout) {
+    clearTimeout(autoCloseTimeout);
+    autoCloseTimeout = null;
+  }
+  // Clear auto-close timeout if manually closing
+  if (autoCloseTimeout) {
+    clearTimeout(autoCloseTimeout);
+    autoCloseTimeout = null;
+  }
+  
+  
   db.prepare("UPDATE game_state SET is_open = 1, opened_at = ?, reveal_answer = 0").run(nowMs());
+  
+  // Check if question has a time limit and set auto-close timer
+  const question = getCurrentQuestion();
+  if (question && question.time_limit_seconds) {
+    const timeoutMs = question.time_limit_seconds * 1000;
+    autoCloseTimeout = setTimeout(() => {
+      const currentState = getGameState();
+      if (currentState.is_open && currentState.current_question_id === question.id) {
+        gradeCurrentQuestion();
+        db.prepare("UPDATE game_state SET is_open = 0").run();
+        emitState();
+        emitRankings();
+      }
+      autoCloseTimeout = null;
+    }, timeoutMs);
+  }
+  
   res.json({ ok: true });
   emitState();
 });
